@@ -11,23 +11,17 @@ const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 
-let map, mapEvent;
-
 class App {
+  // privat variables
   #map;
   #mapEvent;
 
   constructor() {
     this._getPosition();
+    form.addEventListener('submit', this._newWorkout.bind(this));
+    // hier wird wieder 'bind()' benötigt, um 'this' auf die class App zu fokussieren und nicht auf die form
 
-    form.addEventListener('submit', this._newWorkout);
-
-    inputType.addEventListener('change', function () {
-      inputElevation
-        .closest('.form__row')
-        .classList.toggle('form__row--hidden');
-      inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
-    });
+    inputType.addEventListener('change', this._toggleElevationField);
   }
 
   _getPosition() {
@@ -47,31 +41,33 @@ class App {
 
     const coords = [latitude, longitude];
 
-    // LEAFLET Library implementieren
-    // console.log(this);
+    // LEAFLET Library implementieren ---------------------
     this.#map = L.map('map').setView(coords, 13);
-    // console.log(map);
 
     L.tileLayer('https://tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(this.#map);
 
+    // ------------------------------------------------------
+
     // Handling clicks on map
-    this.#map.on('click', function (mapE) {
-      this.#mapEvent = mapE;
-      form.classList.remove('hidden');
-      inputDistance.focus();
-    });
+    this.#map.on('click', this._showForm.bind(this));
   }
 
-  _showForm() {}
+  _showForm(mapE) {
+    this.#mapEvent = mapE;
+    form.classList.remove('hidden');
+    inputDistance.focus();
+  }
 
-  _toggleElevationField() {}
+  _toggleElevationField() {
+    inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
+    inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
+  }
 
   _newWorkout(e) {
     e.preventDefault();
-    console.log(this);
 
     // Clear input fields
     inputDistance.value =
@@ -81,8 +77,7 @@ class App {
         '';
 
     // Display Marker
-    // console.log(mapEvent);
-    const { lat, lng } = mapEvent.latlng;
+    const { lat, lng } = this.#mapEvent.latlng;
 
     L.marker([lat, lng])
       .addTo(this.#map)
