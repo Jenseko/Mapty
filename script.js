@@ -20,33 +20,7 @@ class App {
   constructor() {
     this._getPosition();
 
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-
-      // Clear input fields
-      inputDistance.value =
-        inputDuration.value =
-        inputCadence.value =
-        inputElevation.value =
-          '';
-
-      // Display Marker
-      console.log(mapEvent);
-      const { lat, lng } = mapEvent.latlng;
-      L.marker([lat, lng])
-        .addTo(map)
-        .bindPopup(
-          L.popup({
-            maxWidth: 250,
-            minWidth: 100,
-            autoClose: false,
-            closeOnClick: false,
-            className: 'running-popup',
-          })
-        )
-        .setPopupContent('Workout Running')
-        .openPopup();
-    });
+    form.addEventListener('submit', this._newWorkout);
 
     inputType.addEventListener('change', function () {
       inputElevation
@@ -74,7 +48,7 @@ class App {
     const coords = [latitude, longitude];
 
     // LEAFLET Library implementieren
-
+    // console.log(this);
     this.#map = L.map('map').setView(coords, 13);
     // console.log(map);
 
@@ -85,7 +59,7 @@ class App {
 
     // Handling clicks on map
     this.#map.on('click', function (mapE) {
-      mapEvent = mapE;
+      this.#mapEvent = mapE;
       form.classList.remove('hidden');
       inputDistance.focus();
     });
@@ -95,8 +69,9 @@ class App {
 
   _toggleElevationField() {}
 
-  _newWorkout() {
+  _newWorkout(e) {
     e.preventDefault();
+    console.log(this);
 
     // Clear input fields
     inputDistance.value =
@@ -106,10 +81,11 @@ class App {
         '';
 
     // Display Marker
-    console.log(mapEvent);
+    // console.log(mapEvent);
     const { lat, lng } = mapEvent.latlng;
+
     L.marker([lat, lng])
-      .addTo(map)
+      .addTo(this.#map)
       .bindPopup(
         L.popup({
           maxWidth: 250,
