@@ -4,6 +4,7 @@ class Workout {
   date = new Date();
   id = (Date.now() + '').slice(-10);
   // erstellen von IDs normalerweise mit libraries wie uuid
+  clicks = 0;
 
   constructor(coords, distance, duration) {
     // this.date = date;
@@ -20,7 +21,9 @@ class Workout {
     this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${
       months[this.date.getMonth()]
     } ${this.date.getDate()}`;
-    console.log(this.description);
+  }
+  click() {
+    this.clicks++;
   }
 }
 
@@ -80,15 +83,22 @@ const inputElevation = document.querySelector('.form__input--elevation');
 class App {
   // privat variables
   #map;
+  #mapZoomLevel;
   #mapEvent;
   #workouts = [];
 
   constructor() {
+    // Get users position
     this._getPosition();
+
+    // Get data from local storage
+    this._getLocalStorage();
+
     form.addEventListener('submit', this._newWorkout.bind(this));
     // hier wird wieder 'bind()' benötigt, um 'this' auf die class App zu fokussieren und nicht auf die form
 
     inputType.addEventListener('change', this._toggleElevationField);
+    containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
   }
 
   _getPosition() {
@@ -129,6 +139,7 @@ class App {
   }
 
   _hideForm() {
+    // clear inputs
     inputDistance.value =
       inputDuration.value =
       inputCadence.value =
@@ -137,7 +148,7 @@ class App {
 
     form.style.display = 'none';
     form.classList.add('hidden');
-    setTimeout(() => (form.computedStyleMap.display = 'grid'), 1000);
+    setTimeout(() => (form.style.display = 'grid'), 1000);
   }
 
   _toggleElevationField() {
@@ -202,6 +213,9 @@ class App {
     // Hide form + clear input fields
 
     this._hideForm();
+
+    //Set local storage to all workouts
+    this._setLocalStorage();
   }
 
   _renderWorkoutMarker(workout) {
@@ -267,6 +281,44 @@ class App {
         </li>`;
 
     form.insertAdjacentHTML('afterend', html);
+  }
+
+  _moveToPopup(e) {
+    const workoutEl = e.target.closest('.workout');
+    console.log(workoutEl);
+
+    if (!workoutEl) return;
+
+    const workout = this.#workouts.find(
+      work => work.id === workoutEl.dataset.id
+    );
+    console.log(workout);
+    this.#map.setView(workout.coords, this.#mapZoomLevel, {
+      animate: true,
+      pan: {
+        duration: 1,
+      },
+    });
+    // using public interface
+    workout.click();
+  }
+
+  // use only for small amount of data ---> makes the application more slower
+  _setLocalStorage() {
+    localStorage.setItem('workouts', JSON.stringify(this.#workouts));
+  }
+
+  _getLocalStorage() {
+    const data = JSON.parse(localStorage.getItem('workout'));
+    console.log(data);
+
+    if (!data) return;
+
+    this.#workouts = data;
+
+    this.#workouts.forEach(work => {
+      this._renderWorkout(work);
+    });
   }
 }
 
