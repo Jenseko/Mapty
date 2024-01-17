@@ -14,6 +14,7 @@ class Workout {
     this.duration = duration; // in minutes
   }
 
+  // Creating info about current workout
   _setDescription() {
     // prettier-ignore
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -22,6 +23,7 @@ class Workout {
       months[this.date.getMonth()]
     } ${this.date.getDate()}`;
   }
+
   click() {
     this.clicks++;
   }
@@ -63,11 +65,6 @@ class Cycling extends Workout {
   }
 }
 
-// const run1 = new Running([39, -12], 5.2, 24, 178);
-// const cycling1 = new Cycling([39, -12], 27, 95, 523);
-// console.log(run1);
-// console.log(cycling1);
-
 //////////////////////////////////////////////////////////////
 // APPLICATION ARCHITECTURE /////////////////////////////////
 ////////////////////////////////////////////////////////////
@@ -101,6 +98,7 @@ class App {
     containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
   }
 
+  // looking for current coordinates
   _getPosition() {
     if (navigator.geolocation)
       navigator.geolocation.getCurrentPosition(
@@ -111,6 +109,7 @@ class App {
       );
   }
 
+  // load map with Leaflet library
   _loadMap(position) {
     const { latitude } = position.coords;
     const { longitude } = position.coords;
@@ -142,6 +141,7 @@ class App {
     inputDuration.focus();
   }
 
+  // Hide form after put in the data
   _hideForm() {
     // clear inputs
     inputDistance.value =
@@ -155,11 +155,13 @@ class App {
     setTimeout(() => (form.style.display = 'grid'), 1000);
   }
 
+  // toggle between cadence(running) and elevation(cycling) field
   _toggleElevationField() {
     inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
     inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
   }
 
+  // Create new workout
   _newWorkout(e) {
     // little helper function
     const validInputs = (...inputs) =>
@@ -222,6 +224,7 @@ class App {
     this._setLocalStorage();
   }
 
+  // Create workout marker
   _renderWorkoutMarker(workout) {
     L.marker(workout.coords)
       .addTo(this.#map)
@@ -240,6 +243,7 @@ class App {
       .openPopup();
   }
 
+  // Create workout list items in the sidebar
   _renderWorkout(workout) {
     let html = `
     <li class="workout workout--${workout.type}" data-id="${workout.id}">
@@ -287,6 +291,7 @@ class App {
     form.insertAdjacentHTML('afterend', html);
   }
 
+  // With clicking on the list item, move the map to the coords of the workout
   _moveToPopup(e) {
     const workoutEl = e.target.closest('.workout');
 
@@ -306,11 +311,12 @@ class App {
     // workout.click();
   }
 
-  // use only for small amount of data ---> makes the application more slower
+  // Use only for small amount of data ---> makes the application more slower
   _setLocalStorage() {
     localStorage.setItem('workouts', JSON.stringify(this.#workouts));
   }
 
+  // Reading data from the storage
   _getLocalStorage() {
     const data = JSON.parse(localStorage.getItem('workouts'));
 
@@ -323,6 +329,7 @@ class App {
     });
   }
 
+  // Delete all workouts --> possible in the console with 'app.reset()'
   reset() {
     localStorage.removeItem('workouts');
     location.reload();
