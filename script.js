@@ -130,6 +130,10 @@ class App {
 
     // Handling clicks on map
     this.#map.on('click', this._showForm.bind(this));
+
+    this.#workouts.forEach(work => {
+      this._renderWorkoutMarker(work);
+    });
   }
 
   _showForm(mapE) {
@@ -285,7 +289,6 @@ class App {
 
   _moveToPopup(e) {
     const workoutEl = e.target.closest('.workout');
-    console.log(workoutEl);
 
     if (!workoutEl) return;
 
@@ -300,7 +303,7 @@ class App {
       },
     });
     // using public interface
-    workout.click();
+    // workout.click();
   }
 
   // use only for small amount of data ---> makes the application more slower
@@ -309,8 +312,7 @@ class App {
   }
 
   _getLocalStorage() {
-    const data = JSON.parse(localStorage.getItem('workout'));
-    console.log(data);
+    const data = JSON.parse(localStorage.getItem('workouts'));
 
     if (!data) return;
 
@@ -319,6 +321,11 @@ class App {
     this.#workouts.forEach(work => {
       this._renderWorkout(work);
     });
+  }
+
+  reset() {
+    localStorage.removeItem('workouts');
+    location.reload();
   }
 }
 
