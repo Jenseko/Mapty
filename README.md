@@ -2,6 +2,8 @@
 
 <p>Here, you can track your workouts and view the location where you completed them. You can choose between running or cycling training, specify the duration of your workout, and indicate the distance you covered.</p>
 
+Demo: https://mapty-2023.netlify.app/
+
 ### Build with <br>
 <ul>
 <li>HTML</li>
